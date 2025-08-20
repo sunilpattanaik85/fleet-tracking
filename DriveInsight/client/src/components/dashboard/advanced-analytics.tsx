@@ -229,10 +229,7 @@ export default function AdvancedAnalytics() {
                 <SelectValue placeholder="Select Vehicle" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="V-001">V-001 - John Smith</SelectItem>
-                <SelectItem value="V-002">V-002 - Sarah Johnson</SelectItem>
-                <SelectItem value="V-003">V-003 - Mike Davis</SelectItem>
-                <SelectItem value="V-004">V-004 - Lisa Chen</SelectItem>
+                {/* Options will be fetched dynamically from /api/vehicles in future enhancement */}
               </SelectContent>
             </Select>
             

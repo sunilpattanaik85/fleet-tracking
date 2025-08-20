@@ -16,8 +16,7 @@ export function connectWebSocket() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        
-        if (data.type === 'vehicle_update') {
+        if (data.vehicleId || data.type === 'vehicle_update') {
           // Invalidate vehicle-related queries to trigger refetch
           queryClient.invalidateQueries({ queryKey: ["/api/vehicles"] });
           queryClient.invalidateQueries({ queryKey: ["/api/analytics/summary"] });
