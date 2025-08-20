@@ -7,7 +7,7 @@ export function connectWebSocket() {
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const envUrl = (import.meta as any).env?.VITE_WS_URL as string | undefined;
   const isDev = Boolean((import.meta as any).env?.DEV);
-  const host = window.location.hostname;
+  const host = (import.meta as any).env?.VITE_BACKEND_HOST || window.location.hostname;
   const currentPort = window.location.port;
   const candidates: string[] = [];
 
