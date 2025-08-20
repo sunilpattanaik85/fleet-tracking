@@ -1,16 +1,42 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, type WebSocket } from "ws";
 import { storage } from "./storage";
 import { insertVehicleSchema, insertRouteSchema, insertAlertSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
-  
-  // Placeholder for WebSocket functionality - temporarily disabled to avoid port conflicts
+
+  // WebSocket server mounted on the same HTTP server, on path /ws
+  const wss = new WebSocketServer({ noServer: true });
+  const wsClients = new Set<WebSocket>();
+
+  httpServer.on("upgrade", (request, socket, head) => {
+    const url = request.url || "";
+    if (!url.startsWith("/ws")) {
+      socket.destroy();
+      return;
+    }
+
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
+    });
+  });
+
+  wss.on("connection", (ws) => {
+    wsClients.add(ws);
+    ws.on("close", () => wsClients.delete(ws));
+  });
+
   function broadcastVehicleUpdate(vehicle: any) {
-    // WebSocket functionality temporarily disabled
-    console.log('Vehicle update would be broadcast:', vehicle.id);
+    const message = JSON.stringify({ type: "vehicle_update", vehicleId: vehicle.id });
+    for (const client of wsClients) {
+      if (client.readyState === client.OPEN) {
+        try {
+          client.send(message);
+        } catch {}
+      }
+    }
   }
 
   // Vehicle routes

@@ -4,7 +4,15 @@ let ws: WebSocket | null = null;
 
 export function connectWebSocket() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  const explicitUrl = (import.meta as any).env?.VITE_WS_URL as string | undefined;
+  const isDev = (import.meta as any).env?.DEV as boolean | undefined;
+  const host = window.location.hostname;
+  const port = explicitUrl
+    ? undefined
+    : isDev
+      ? ((import.meta as any).env?.VITE_BACKEND_PORT as string | undefined) || '5000'
+      : window.location.port;
+  const wsUrl = explicitUrl || `${protocol}//${host}${port ? `:${port}` : ''}/ws`;
 
   try {
     ws = new WebSocket(wsUrl);
