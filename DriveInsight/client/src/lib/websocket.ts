@@ -1,24 +1,45 @@
 import { queryClient } from "./queryClient";
 
 let ws: WebSocket | null = null;
+let lastSuccessfulUrl: string | null = null;
 
 export function connectWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const explicitUrl = (import.meta as any).env?.VITE_WS_URL as string | undefined;
-  const isDev = (import.meta as any).env?.DEV as boolean | undefined;
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const envUrl = (import.meta as any).env?.VITE_WS_URL as string | undefined;
+  const isDev = Boolean((import.meta as any).env?.DEV);
   const host = window.location.hostname;
-  const port = explicitUrl
-    ? undefined
-    : isDev
-      ? ((import.meta as any).env?.VITE_BACKEND_PORT as string | undefined) || '5000'
-      : window.location.port;
-  const wsUrl = explicitUrl || `${protocol}//${host}${port ? `:${port}` : ''}/ws`;
+  const currentPort = window.location.port;
+  const candidates: string[] = [];
+
+  if (envUrl) {
+    candidates.push(envUrl);
+  } else {
+    // Prefer same-origin first (works when app and API are served on one port)
+    const sameOrigin = `${protocol}//${host}${currentPort ? `:${currentPort}` : ""}/ws`;
+    candidates.push(sameOrigin);
+
+    // In dev, also try a common backend port (5000) if different from same-origin
+    const devPort = ((import.meta as any).env?.VITE_BACKEND_PORT as string | undefined) || "5000";
+    const devUrl = `${protocol}//${host}:${devPort}/ws`;
+    if (devUrl !== sameOrigin) candidates.push(devUrl);
+  }
+
+  function tryConnect(urls: string[], attemptIndex = 0) {
+    const url = urls[attemptIndex] ?? urls[0];
+    try {
+      ws = new WebSocket(url);
+    } catch (error) {
+      // If constructor throws synchronously, schedule next attempt
+      if (attemptIndex + 1 < urls.length) {
+        setTimeout(() => tryConnect(urls, attemptIndex + 1), 500);
+      }
+      return;
+    }
 
   try {
-    ws = new WebSocket(wsUrl);
-
     ws.onopen = () => {
-      console.log('WebSocket connected');
+      lastSuccessfulUrl = url;
+      console.log("WebSocket connected", url);
     };
 
     ws.onmessage = (event) => {
@@ -36,19 +57,28 @@ export function connectWebSocket() {
     };
 
     ws.onclose = () => {
-      console.log('WebSocket disconnected');
+      console.log("WebSocket disconnected");
       // Attempt to reconnect after 5 seconds
       setTimeout(() => {
-        connectWebSocket();
+        // Prefer the last successful URL if available, otherwise retry candidates
+        if (lastSuccessfulUrl) {
+          tryConnect([lastSuccessfulUrl]);
+        } else {
+          tryConnect(candidates);
+        }
       }, 5000);
     };
 
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
+    ws.onerror = (_error) => {
+      // If current attempt fails before open, try next candidate
+      if (!lastSuccessfulUrl && attemptIndex + 1 < urls.length) {
+        try { ws?.close(); } catch {}
+        setTimeout(() => tryConnect(urls, attemptIndex + 1), 250);
+      }
     };
-  } catch (error) {
-    console.error('Failed to connect WebSocket:', error);
   }
+
+  tryConnect(candidates);
 
   return () => {
     if (ws) {
