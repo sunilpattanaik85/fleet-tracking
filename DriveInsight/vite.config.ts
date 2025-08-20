@@ -29,6 +29,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: process.env.HOST || "127.0.0.1",
+    port: parseInt(process.env.PORT || "5000", 10),
+    hmr: {
+      host: process.env.HOST || "127.0.0.1",
+      clientPort: parseInt(process.env.PORT || "5000", 10),
+      protocol: "ws",
+    },
     proxy: {
       "/api": {
         target: "http://localhost:8080",
