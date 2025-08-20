@@ -1,0 +1,51 @@
+Build a full-stack web application for an Analytic Vehicle Tracking Dashboard similar in look and feel to the attached design, using the following technology stack:
+•	Backend: Java (Spring Boot)
+•	Database: MySQL
+•	Frontend: Angular (latest stable version)
+•	Mapping: Leaflet.js with OpenStreetMap tiles
+•	Charts: Use charting library such as Chart.js or ngx-charts for corridor analytics, performance metrics, and vehicle type analysis
+Key Features:
+1.	Top Summary Cards: Total Vehicles, Active Vehicles, Avg Speed, Total Distance Today, Active Corridors
+2.	Interactive Map:
+o	Show vehicle locations by corridor (North, South, East, West)
+o	Real-time updates (WebSocket or polling every 30s)
+o	Clicking on a vehicle shows details (speed, fuel, driver name)
+3.	Corridor Analytics:
+o	Pie chart for corridor vehicle distribution
+o	Bar chart for vehicles per corridor
+o	Average speed per corridor
+4.	Vehicle Details Table:
+o	Search by vehicle ID or driver name
+o	Filters: Corridor, Vehicle Status, Vehicle Type
+o	Date range filter
+o	Auto-refresh toggle (30s)
+5.	Performance Metrics:
+o	Fuel levels per vehicle
+o	Daily distance by vehicle
+o	Speed vs fuel level scatter plot
+6.	Advanced Analytics:
+o	Vehicle type distribution
+o	Alert system with categories (Low Fuel, Maintenance, Speeding, Offline)
+o	Fuel efficiency leaderboard (top 5 vehicles)
+o	Speed distribution by corridor
+7.	Fleet Utilization & Maintenance Insights:
+o	Pie chart for idle, active, maintenance, offline vehicles
+o	Recommendations for preventive maintenance
+8.	Route Visualization:
+o	Select vehicle to view past route
+o	Show route distance, average speed, and duration
+Backend Requirements:
+•	REST API endpoints to serve all the above data in JSON format
+•	CRUD endpoints for vehicles, corridors, alerts
+•	WebSocket endpoint for live vehicle tracking
+•	Use MySQL to store vehicle data, route history, analytics data
+•	Seed database with sample data for testing
+Frontend Requirements:
+•	Angular components for each section (summary cards, map, charts, table, analytics panels)
+•	Responsive design matching the provided PDF’s layout
+•	Use Angular services to fetch data from backend REST APIs
+•	Implement real-time updates via WebSocket for the map and summary stats
+Output:
+•	Complete source code for backend (Spring Boot) and frontend (Angular)
+•	SQL script to create and seed the MySQL database
+•	Instructions to run the application locally (Java + MySQL + Angular setup)
