@@ -16,7 +16,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-dashboard-dark text-white">
+    <div className="min-h-screen flex bg-background text-foreground">
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <Header />
