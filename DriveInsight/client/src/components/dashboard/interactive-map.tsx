@@ -3,9 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Vehicle } from "@shared/schema";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 export default function InteractiveMap() {
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<Record<string, L.Marker>>({});
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedCorridor, setSelectedCorridor] = useState("All Corridors");
 
@@ -29,6 +33,83 @@ export default function InteractiveMap() {
   const handleVehicleClick = (vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
   };
+
+  // Initialize Leaflet map once
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
+    const map = L.map(mapContainerRef.current, {
+      center: [20.5937, 78.9629], // default to India centroid; adjust as needed
+      zoom: 5,
+      zoomControl: false,
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+      maxZoom: 19,
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    // Add custom zoom controls to match UI buttons
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+      markersRef.current = {};
+    };
+  }, []);
+
+  // Sync markers with vehicles
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const corridorColorByName: Record<string, string> = corridorColors as any;
+
+    const currentMarkers = markersRef.current;
+    const stillPresent = new Set<string>();
+
+    filteredVehicles.forEach((v) => {
+      stillPresent.add(v.id);
+      const color = corridorColorByName[v.corridor] || "#0EA5E9";
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="width:12px;height:12px;border-radius:9999px;background:${color};border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.2)"></div>`,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6],
+      });
+
+      if (currentMarkers[v.id]) {
+        currentMarkers[v.id].setLatLng([v.latitude, v.longitude]);
+      } else {
+        const m = L.marker([v.latitude, v.longitude], { icon })
+          .addTo(map)
+          .on("click", () => handleVehicleClick(v));
+        m.bindPopup(
+          `<div style="min-width:160px">
+            <div><strong>${v.id}</strong></div>
+            <div>Driver: ${v.driverName}</div>
+            <div>Speed: ${v.speed} km/h</div>
+            <div>Fuel: ${v.fuel}%</div>
+          </div>`
+        );
+        currentMarkers[v.id] = m;
+      }
+    });
+
+    // Remove markers for vehicles no longer present
+    Object.keys(currentMarkers).forEach((id) => {
+      if (!stillPresent.has(id)) {
+        currentMarkers[id].remove();
+        delete currentMarkers[id];
+      }
+    });
+
+    // Fit bounds to visible markers when data first loads
+    const markerList = Object.values(currentMarkers);
+    if (markerList.length > 0) {
+      const group = L.featureGroup(markerList);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+  }, [filteredVehicles]);
 
   if (isLoading) {
     return (
@@ -72,74 +153,10 @@ export default function InteractiveMap() {
       </CardHeader>
       <CardContent>
         <div
-          ref={mapRef}
-          className="h-96 rounded-lg bg-dashboard-accent relative overflow-hidden"
+          ref={mapContainerRef}
+          className="h-96 rounded-lg overflow-hidden"
           data-testid="vehicle-map"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1200&h=600')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="absolute inset-0 bg-dashboard-accent bg-opacity-60"></div>
-          
-          {/* Vehicle markers */}
-          <div className="absolute inset-0 p-4">
-            {filteredVehicles.map((vehicle, index) => {
-              const color = corridorColors[vehicle.corridor as keyof typeof corridorColors];
-              const x = 20 + (index % 8) * 60; // Distribute markers horizontally
-              const y = 20 + Math.floor(index / 8) * 50; // Stack vertically
-              
-              return (
-                <div
-                  key={vehicle.id}
-                  className="absolute w-3 h-3 rounded-full animate-pulse cursor-pointer transform hover:scale-150 transition-transform"
-                  style={{
-                    backgroundColor: color,
-                    left: `${x}px`,
-                    top: `${y}px`,
-                  }}
-                  onClick={() => handleVehicleClick(vehicle)}
-                  data-testid={`vehicle-marker-${vehicle.id}`}
-                  title={`${vehicle.id} - ${vehicle.driverName} - Speed: ${vehicle.speed} km/h`}
-                />
-              );
-            })}
-          </div>
-          
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 flex flex-col space-y-2">
-            <Button
-              size="sm"
-              className="w-8 h-8 bg-dashboard-secondary border border-dashboard-accent"
-              data-testid="map-zoom-in"
-            >
-              +
-            </Button>
-            <Button
-              size="sm"
-              className="w-8 h-8 bg-dashboard-secondary border border-dashboard-accent"
-              data-testid="map-zoom-out"
-            >
-              −
-            </Button>
-          </div>
-          
-          {/* Map Legend */}
-          <div className="absolute bottom-4 left-4 bg-dashboard-secondary bg-opacity-90 rounded-lg p-3 text-xs">
-            <div className="space-y-1">
-              {Object.entries(corridorColors).map(([corridor, color]) => (
-                <div key={corridor} className="flex items-center space-x-2">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span>{corridor} Corridor</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        />
         
         {/* Vehicle Details Panel */}
         {selectedVehicle && (
