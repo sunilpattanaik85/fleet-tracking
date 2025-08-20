@@ -13,14 +13,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   httpServer.on("upgrade", (request, socket, head) => {
     const url = request.url || "";
-    if (!url.startsWith("/ws")) {
-      socket.destroy();
-      return;
+    // Only handle our app websocket path. Let other upgrade requests (e.g., Vite HMR) pass through.
+    if (url.startsWith("/ws")) {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit("connection", ws, request);
+      });
     }
-
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit("connection", ws, request);
-    });
+    // Do not destroy other upgrade sockets; Vite HMR and other middlewares may handle them.
   });
 
   wss.on("connection", (ws) => {
