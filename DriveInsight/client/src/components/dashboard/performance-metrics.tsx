@@ -32,7 +32,7 @@ export default function PerformanceMetrics() {
           </CardHeader>
           <CardContent>
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </CardContent>
         </Card>
@@ -79,7 +79,7 @@ export default function PerformanceMetrics() {
           <div className="space-y-3">
             {leaderboardData.map((item, index) => {
               const bgOpacity = index === 0 ? "bg-opacity-50" : index === 1 ? "bg-opacity-30" : "bg-opacity-20";
-              const rankColor = index === 0 ? "bg-yellow-500" : index === 1 ? "bg-gray-400" : "bg-orange-600";
+              const rankColor = index === 0 ? "bg-yellow-400" : index === 1 ? "bg-gray-300" : "bg-orange-500";
               
               return (
                 <div
@@ -88,17 +88,17 @@ export default function PerformanceMetrics() {
                   data-testid={`leaderboard-item-${index + 1}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 ${rankColor} rounded-full flex items-center justify-center text-dashboard-dark font-bold text-sm`}>
+                    <div className={`w-8 h-8 ${rankColor} rounded-full flex items-center justify-center text-foreground font-bold text-sm`}>
                       {index + 1}
                     </div>
                     <div>
                       <p className="font-medium">{item.vehicleId}</p>
-                      <p className="text-gray-400 text-xs">{item.driver}</p>
+                      <p className="text-muted-foreground text-xs">{item.driver}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-green-400">{item.efficiency} km/L</p>
-                    <p className="text-gray-400 text-xs">{item.change} this week</p>
+                    <p className="font-bold text-green-600">{item.efficiency} km/L</p>
+                    <p className="text-muted-foreground text-xs">{item.change} this week</p>
                   </div>
                 </div>
               );

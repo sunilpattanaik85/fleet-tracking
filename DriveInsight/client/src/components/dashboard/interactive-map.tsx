@@ -38,7 +38,7 @@ export default function InteractiveMap() {
         </CardHeader>
         <CardContent>
           <div className="h-96 rounded-lg bg-dashboard-accent flex items-center justify-center">
-            <p className="text-gray-400">Loading map...</p>
+            <p className="text-muted-foreground">Loading map...</p>
           </div>
         </CardContent>
       </Card>
@@ -60,8 +60,8 @@ export default function InteractiveMap() {
                 data-testid={`corridor-filter-${corridor.toLowerCase().replace(' ', '-')}`}
                 className={
                   selectedCorridor === corridor
-                    ? "bg-dashboard-blue text-white"
-                    : "bg-dashboard-accent text-gray-300 hover:bg-dashboard-blue hover:text-white"
+                    ? "bg-dashboard-blue text-primary-foreground"
+                    : "bg-dashboard-accent text-muted-foreground hover:bg-dashboard-blue hover:text-primary-foreground"
                 }
               >
                 {corridor}
@@ -157,31 +157,31 @@ export default function InteractiveMap() {
             </div>
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-gray-400">Vehicle ID</p>
+                <p className="text-muted-foreground">Vehicle ID</p>
                 <p className="font-medium" data-testid="selected-vehicle-id">{selectedVehicle.id}</p>
               </div>
               <div>
-                <p className="text-gray-400">Driver</p>
+                <p className="text-muted-foreground">Driver</p>
                 <p className="font-medium" data-testid="selected-vehicle-driver">{selectedVehicle.driverName}</p>
               </div>
               <div>
-                <p className="text-gray-400">Current Speed</p>
+                <p className="text-muted-foreground">Current Speed</p>
                 <p className="font-medium" data-testid="selected-vehicle-speed">{selectedVehicle.speed} km/h</p>
               </div>
               <div>
-                <p className="text-gray-400">Fuel Level</p>
+                <p className="text-muted-foreground">Fuel Level</p>
                 <p className="font-medium" data-testid="selected-vehicle-fuel">{selectedVehicle.fuel}%</p>
               </div>
               <div>
-                <p className="text-gray-400">Corridor</p>
+                <p className="text-muted-foreground">Corridor</p>
                 <p className="font-medium" data-testid="selected-vehicle-corridor">{selectedVehicle.corridor}</p>
               </div>
               <div>
-                <p className="text-gray-400">Status</p>
+                <p className="text-muted-foreground">Status</p>
                 <p
                   className={`font-medium ${
-                    selectedVehicle.status === "active" ? "text-green-400" : 
-                    selectedVehicle.status === "idle" ? "text-yellow-400" : "text-red-400"
+                    selectedVehicle.status === "active" ? "text-green-600" : 
+                    selectedVehicle.status === "idle" ? "text-yellow-600" : "text-red-600"
                   }`}
                   data-testid="selected-vehicle-status"
                 >

@@ -41,10 +41,10 @@ export default function VehicleTable() {
     };
 
     const colors: Record<string, string> = {
-      active: "bg-green-500 bg-opacity-20 text-green-400",
-      idle: "bg-gray-500 bg-opacity-20 text-gray-400",
-      maintenance: "bg-orange-500 bg-opacity-20 text-orange-400",
-      offline: "bg-red-500 bg-opacity-20 text-red-400",
+      active: "bg-green-500 bg-opacity-20 text-green-600",
+      idle: "bg-gray-400 bg-opacity-20 text-muted-foreground",
+      maintenance: "bg-orange-500 bg-opacity-20 text-orange-600",
+      offline: "bg-red-500 bg-opacity-20 text-red-600",
     };
 
     return (
@@ -81,7 +81,7 @@ export default function VehicleTable() {
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center">
-            <p className="text-gray-400">Loading vehicles...</p>
+            <p className="text-muted-foreground">Loading vehicles...</p>
           </div>
         </CardContent>
       </Card>
@@ -157,12 +157,12 @@ export default function VehicleTable() {
           <Table>
             <TableHeader>
               <TableRow className="border-b border-dashboard-accent">
-                <TableHead className="text-gray-400">Vehicle ID</TableHead>
-                <TableHead className="text-gray-400">Driver</TableHead>
-                <TableHead className="text-gray-400">Corridor</TableHead>
-                <TableHead className="text-gray-400">Speed</TableHead>
-                <TableHead className="text-gray-400">Fuel</TableHead>
-                <TableHead className="text-gray-400">Status</TableHead>
+                <TableHead className="text-muted-foreground">Vehicle ID</TableHead>
+                <TableHead className="text-muted-foreground">Driver</TableHead>
+                <TableHead className="text-muted-foreground">Corridor</TableHead>
+                <TableHead className="text-muted-foreground">Speed</TableHead>
+                <TableHead className="text-muted-foreground">Fuel</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -190,7 +190,7 @@ export default function VehicleTable() {
 
         {filteredVehicles.length === 0 && (
           <div className="text-center py-8" data-testid="no-vehicles-message">
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               {searchTerm || corridorFilter !== "all" || statusFilter !== "all" || typeFilter !== "all"
                 ? "No vehicles match the current filters"
                 : "No vehicles available"}

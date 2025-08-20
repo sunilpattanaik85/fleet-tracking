@@ -19,7 +19,7 @@ export default function CorridorAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </CardContent>
         </Card>
