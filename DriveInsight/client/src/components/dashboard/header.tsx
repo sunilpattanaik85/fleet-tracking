@@ -1,12 +1,33 @@
-import { Search, RefreshCw, User } from "lucide-react";
+import { Moon, Sun, Search, RefreshCw, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 
 export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const [isDark, setIsDark] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("theme");
+      const dark = stored ? stored === "dark" : false;
+      setIsDark(dark);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      try { localStorage.setItem("theme", "dark"); } catch {}
+    } else {
+      root.classList.remove("dark");
+      try { localStorage.setItem("theme", "light"); } catch {}
+    }
+  }, [isDark]);
 
   const handleRefresh = () => {
     toast({
@@ -27,6 +48,11 @@ export default function Header() {
           </p>
         </div>
         <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2" title="Toggle dark mode">
+            <Sun className="h-4 w-4" />
+            <Switch checked={isDark} onCheckedChange={(v) => setIsDark(Boolean(v))} />
+            <Moon className="h-4 w-4" />
+          </div>
           <div className="relative">
             <Input
               type="text"
