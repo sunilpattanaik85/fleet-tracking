@@ -10,6 +10,7 @@ export default function InteractiveMap() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
+  const corridorLayersRef = useRef<Record<string, L.Polyline>>({});
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedCorridor, setSelectedCorridor] = useState("All Corridors");
 
@@ -18,12 +19,18 @@ export default function InteractiveMap() {
     refetchInterval: 30000,
   });
 
-  const corridors = ["All Corridors", "North", "South", "East", "West"];
-  const corridorColors = {
-    North: "#0EA5E9", // dashboard-blue
-    South: "#10B981", // green-500
-    East: "#F59E0B",  // yellow-500
-    West: "#8B5CF6",  // purple-500
+  const corridors = [
+    "All Corridors",
+    "Beira",
+    "Nacala",
+    "Central (Dar es Salaam)",
+    "Durban",
+  ];
+  const tradeCorridorColors: Record<string, string> = {
+    "Beira": "#0EA5E9",
+    "Nacala": "#10B981",
+    "Central (Dar es Salaam)": "#F59E0B",
+    "Durban": "#8B5CF6",
   };
 
   const filteredVehicles = selectedCorridor === "All Corridors" 
@@ -59,11 +66,11 @@ export default function InteractiveMap() {
     // Start focused on Malawi
     map.fitBounds(malawiBounds.pad(0.05));
 
-    // Add custom zoom controls to match UI buttons
     return () => {
       map.remove();
       mapInstanceRef.current = null;
       markersRef.current = {};
+      corridorLayersRef.current = {};
     };
   }, []);
 
@@ -72,7 +79,7 @@ export default function InteractiveMap() {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    const corridorColorByName: Record<string, string> = corridorColors as any;
+    const corridorColorByName: Record<string, string> = tradeCorridorColors as any;
 
     const currentMarkers = markersRef.current;
     const stillPresent = new Set<string>();
@@ -121,6 +128,51 @@ export default function InteractiveMap() {
     }
   }, [filteredVehicles]);
 
+  // Draw Malawi trade corridor polylines (approximate Malawi segments)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Remove existing layers first
+    Object.values(corridorLayersRef.current).forEach((pl) => pl.remove());
+    corridorLayersRef.current = {};
+
+    const beiraCoords: L.LatLngExpression[] = [
+      [-15.7861, 35.0058],
+      [-15.60, 34.50],
+      [-15.40, 34.00],
+    ];
+    const nacalaCoords: L.LatLngExpression[] = [
+      [-13.9626, 33.7741],
+      [-14.2000, 34.2000],
+      [-14.8500, 35.4200],
+    ];
+    const centralDarCoords: L.LatLngExpression[] = [
+      [-13.9626, 33.7741],
+      [-12.8000, 34.1000],
+      [-11.4656, 34.0206],
+      [-9.7000, 33.8000],
+    ];
+    const durbanCoords: L.LatLngExpression[] = [
+      [-15.7861, 35.0058],
+      [-16.4000, 35.1000],
+      [-16.9190, 35.2610],
+    ];
+
+    const configs: Array<{ name: string; coords: L.LatLngExpression[]; color: string }> = [
+      { name: "Beira", coords: beiraCoords, color: tradeCorridorColors["Beira"] },
+      { name: "Nacala", coords: nacalaCoords, color: tradeCorridorColors["Nacala"] },
+      { name: "Central (Dar es Salaam)", coords: centralDarCoords, color: tradeCorridorColors["Central (Dar es Salaam)"] },
+      { name: "Durban", coords: durbanCoords, color: tradeCorridorColors["Durban"] },
+    ];
+
+    configs.forEach(({ name, coords, color }) => {
+      const highlight = selectedCorridor === "All Corridors" || selectedCorridor === name;
+      const pl = L.polyline(coords, { color, weight: highlight ? 5 : 3, opacity: highlight ? 0.9 : 0.4 }).addTo(map);
+      corridorLayersRef.current[name] = pl;
+    });
+  }, [selectedCorridor]);
+
   if (isLoading) {
     return (
       <Card className="bg-dashboard-secondary border-dashboard-accent">
@@ -139,7 +191,7 @@ export default function InteractiveMap() {
   return (
     <Card className="bg-dashboard-secondary border-dashboard-accent">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2 justify-between">
           <CardTitle data-testid="map-title">Live Vehicle Tracking</CardTitle>
           <div className="flex items-center space-x-2">
             {corridors.map((corridor) => (
@@ -162,13 +214,22 @@ export default function InteractiveMap() {
         </div>
       </CardHeader>
       <CardContent>
-        <div
-          ref={mapContainerRef}
-          className="h-96 rounded-lg overflow-hidden"
-          data-testid="vehicle-map"
-        />
+        <div className="relative">
+          <div
+            ref={mapContainerRef}
+            className="h-96 rounded-lg overflow-hidden"
+            data-testid="vehicle-map"
+          />
+          <div className="absolute bottom-3 left-3 bg-dashboard-secondary/90 rounded p-2 text-xs space-y-1">
+            {Object.entries(tradeCorridorColors).map(([name, color]) => (
+              <div key={name} className="flex items-center space-x-2">
+                <span style={{ backgroundColor: color, width: 16, height: 3, display: 'inline-block' }} />
+                <span>{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
         
-        {/* Vehicle Details Panel */}
         {selectedVehicle && (
           <div className="mt-4 bg-dashboard-accent rounded-lg p-4" data-testid="vehicle-details-panel">
             <div className="flex items-center justify-between mb-2">
