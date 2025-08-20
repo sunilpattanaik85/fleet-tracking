@@ -37,10 +37,17 @@ export default function InteractiveMap() {
   // Initialize Leaflet map once
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
+    // Malawi bounds (approx): SW [-17.2, 32.6], NE [-9.2, 35.95]
+    const malawiBounds = L.latLngBounds([
+      [-17.2, 32.6],
+      [-9.2, 35.95],
+    ]);
+
     const map = L.map(mapContainerRef.current, {
-      center: [20.5937, 78.9629], // default to India centroid; adjust as needed
-      zoom: 5,
       zoomControl: false,
+      maxBounds: malawiBounds,
+      maxBoundsViscosity: 1.0,
+      minZoom: 6,
     });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap contributors",
@@ -48,6 +55,9 @@ export default function InteractiveMap() {
     }).addTo(map);
 
     mapInstanceRef.current = map;
+
+    // Start focused on Malawi
+    map.fitBounds(malawiBounds.pad(0.05));
 
     // Add custom zoom controls to match UI buttons
     return () => {
