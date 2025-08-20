@@ -36,7 +36,6 @@ export function connectWebSocket() {
       return;
     }
 
-  try {
     ws.onopen = () => {
       lastSuccessfulUrl = url;
       console.log("WebSocket connected", url);
@@ -76,6 +75,7 @@ export function connectWebSocket() {
         setTimeout(() => tryConnect(urls, attemptIndex + 1), 250);
       }
     };
+
   }
 
   tryConnect(candidates);
