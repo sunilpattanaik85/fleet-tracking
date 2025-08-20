@@ -2,10 +2,15 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, type WebSocket } from "ws";
 import { storage } from "./storage";
+import cookieParser from "cookie-parser";
+import { authRouter, configureAuth, requireJwt, requireSession } from "./auth";
 import { insertVehicleSchema, insertRouteSchema, insertAlertSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
+  app.use(cookieParser());
+  configureAuth(app);
+  app.use("/api/auth", authRouter());
 
   // WebSocket server mounted on the same HTTP server, on path /ws
   const wss = new WebSocketServer({ noServer: true });
@@ -60,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vehicles", async (req, res) => {
+  app.post("/api/vehicles", requireSession, async (req, res) => {
     try {
       const validated = insertVehicleSchema.parse(req.body);
       const vehicle = await storage.createVehicle(validated);
@@ -71,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/vehicles/:id", async (req, res) => {
+  app.patch("/api/vehicles/:id", requireSession, async (req, res) => {
     try {
       const vehicle = await storage.updateVehicle(req.params.id, req.body);
       if (!vehicle) {
@@ -84,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/vehicles/:id", async (req, res) => {
+  app.delete("/api/vehicles/:id", requireJwt(["admin"]), async (req, res) => {
     try {
       const deleted = await storage.deleteVehicle(req.params.id);
       if (!deleted) {
