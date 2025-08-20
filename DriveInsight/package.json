@@ -4,8 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
+    "start": "node --enable-source-maps --no-warnings --loader tsx ./server/index.ts",
+    "dev": "tsx ./server/index.ts",
     "build": "vite build",
     "preview": "vite preview",
     "db:push": "drizzle-kit push"
