@@ -1,6 +1,12 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import session from "express-session";
 import MemorystoreFactory from "memorystore";
+import Redis from "ioredis";
+import connectRedis from "connect-redis";
+import csrf from "csurf";
+import nodemailer from "nodemailer";
+import speakeasy from "speakeasy";
+import QRCode from "qrcode";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
@@ -13,6 +19,7 @@ type User = {
   passwordHash: string;
   roles: string[];
   emailVerified: boolean;
+  mfaSecret?: string;
 };
 
 const users = new Map<string, User>();
@@ -50,6 +57,15 @@ passport.deserializeUser((id: string, done) => {
 
 export function configureAuth(app: express.Express) {
   const MemoryStore = MemorystoreFactory(session);
+  const redisUrl = process.env.REDIS_URL;
+  let store: any;
+  if (redisUrl) {
+    const RedisStore = connectRedis(session);
+    const redis = new Redis(redisUrl);
+    store = new RedisStore({ client: redis, prefix: "sess:" });
+  } else {
+    store = new MemoryStore({ checkPeriod: 1000 * 60 * 60 });
+  }
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "dev-session-secret",
@@ -60,19 +76,22 @@ export function configureAuth(app: express.Express) {
         httpOnly: true,
         sameSite: "lax",
         secure: false,
-        maxAge: 1000 * 60 * 30, // 30 minutes
+        maxAge: 1000 * 60 * 30,
       },
-      store: new MemoryStore({ checkPeriod: 1000 * 60 * 60 }),
+      store,
     })
   );
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // CSRF demo token via header (simple double-submit token)
-  app.use((req, _res, next) => {
-    if (!req.session) return next();
-    if (!req.session.csrfToken) req.session.csrfToken = Math.random().toString(36).slice(2);
-    next();
+  // CSRF protection for cookie-based routes (exclude JSON API that use Bearer tokens if needed)
+  const csrfProtection = csrf({ cookie: false });
+  app.use((req, res, next) => {
+    // Exempt JWT endpoints and auth endpoints that are token-only
+    if (req.path.startsWith("/api/auth/refresh") || req.path.startsWith("/api/auth/login")) return next();
+    // Only enforce CSRF on state-changing requests using session cookies
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) return csrfProtection(req, res, next);
+    return next();
   });
 }
 
@@ -94,18 +113,82 @@ function issueRefresh(user: User) {
 export function authRouter() {
   const router = express.Router();
 
+  const transporter = nodemailer.createTransport({
+    jsonTransport: true,
+  });
+
+  // Registration with email verification
+  router.post("/register", async (req, res) => {
+    const { email, name, password } = req.body || {};
+    if (!email || !password) return res.status(400).json({ message: "Missing fields" });
+    if (Array.from(users.values()).some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      return res.status(409).json({ message: "Email exists" });
+    }
+    const id = Math.random().toString(36).slice(2);
+    const passwordHash = bcrypt.hashSync(password, 10);
+    const user: User = { id, email, name: name || email, passwordHash, roles: ["viewer"], emailVerified: false };
+    users.set(id, user);
+    const token = jwt.sign({ sub: id, purpose: "verify" }, JWT_SECRET, { expiresIn: "1d" });
+    await transporter.sendMail({ to: email, subject: "Verify your email", text: `Verify: ${token}` });
+    return res.status(201).json({ ok: true });
+  });
+
+  router.post("/verify-email", (req, res) => {
+    const { token } = req.body || {};
+    if (!token) return res.status(400).json({ message: "Missing token" });
+    try {
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      const user = users.get(decoded.sub);
+      if (!user) return res.status(400).json({ message: "Invalid" });
+      user.emailVerified = true;
+      return res.json({ ok: true });
+    } catch {
+      return res.status(400).json({ message: "Invalid or expired" });
+    }
+  });
+
   router.post("/login", (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate("local", (err, user: User, info) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: info?.message || "Unauthorized" });
+      if (!user.emailVerified) return res.status(403).json({ message: "Email not verified" });
       req.logIn(user, (err) => {
         if (err) return next(err);
+        // If MFA enabled, require TOTP token next
+        if (user.mfaSecret) {
+          return res.json({ mfa: true });
+        }
         const access = signAccess(user);
         const { token: refresh } = issueRefresh(user);
         res.cookie("refresh", refresh, { httpOnly: true, sameSite: "lax", secure: false, path: "/api/auth" });
         return res.json({ access });
       });
     })(req, res, next);
+  });
+
+  // MFA setup (requires session)
+  router.post("/mfa/setup", (req, res) => {
+    const user = req.user as User | undefined;
+    if (!user) return res.status(401).json({ message: "Session required" });
+    const secret = speakeasy.generateSecret({ name: `DriveInsight (${user.email})` });
+    users.set(user.id, { ...user, mfaSecret: secret.base32 });
+    QRCode.toDataURL(secret.otpauth_url!, (err, dataUrl) => {
+      if (err) return res.status(500).json({ message: "QR generate failed" });
+      res.json({ otpauthUrl: secret.otpauth_url, qr: dataUrl });
+    });
+  });
+
+  // MFA verify and complete login
+  router.post("/mfa/verify", (req, res) => {
+    const user = req.user as User | undefined;
+    const { token } = req.body || {};
+    if (!user || !user.mfaSecret) return res.status(401).json({ message: "Session/MFA required" });
+    const ok = speakeasy.totp.verify({ secret: user.mfaSecret, encoding: "base32", token, window: 1 });
+    if (!ok) return res.status(401).json({ message: "Invalid code" });
+    const access = signAccess(user);
+    const { token: refresh } = issueRefresh(user);
+    res.cookie("refresh", refresh, { httpOnly: true, sameSite: "lax", secure: false, path: "/api/auth" });
+    return res.json({ access });
   });
 
   router.post("/refresh", (req: Request, res: Response) => {
