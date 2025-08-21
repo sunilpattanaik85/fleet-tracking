@@ -63,61 +63,61 @@ export class MemStorage implements IStorage {
       {
         id: "V-001",
         driverName: "John Smith",
-        corridor: "North",
+        corridor: "Beira",
         speed: 45,
         fuel: 78,
         status: "active",
         vehicleType: "truck",
-        latitude: 40.7589,
-        longitude: -73.9851,
+        latitude: -15.7861,
+        longitude: 35.0058,
         lastUpdate: new Date(),
       },
       {
         id: "V-002",
         driverName: "Sarah Johnson",
-        corridor: "South",
+        corridor: "Nacala",
         speed: 41,
         fuel: 45,
         status: "active",
         vehicleType: "van",
-        latitude: 40.7282,
-        longitude: -74.0776,
+        latitude: -13.9626,
+        longitude: 33.7741,
         lastUpdate: new Date(),
       },
       {
         id: "V-003",
         driverName: "Mike Davis",
-        corridor: "East",
+        corridor: "Central (Dar es Salaam)",
         speed: 0,
         fuel: 92,
         status: "idle",
         vehicleType: "truck",
-        latitude: 40.7614,
-        longitude: -73.9776,
+        latitude: -11.4656,
+        longitude: 34.0206,
         lastUpdate: new Date(),
       },
       {
         id: "V-004",
         driverName: "Lisa Chen",
-        corridor: "West",
+        corridor: "Durban",
         speed: 52,
         fuel: 67,
         status: "active",
         vehicleType: "sedan",
-        latitude: 40.7505,
-        longitude: -73.9934,
+        latitude: -15.3929,
+        longitude: 35.3180,
         lastUpdate: new Date(),
       },
       {
         id: "V-005",
         driverName: "Robert Wilson",
-        corridor: "North",
+        corridor: "Beira",
         speed: 0,
         fuel: 85,
         status: "maintenance",
         vehicleType: "truck",
-        latitude: 40.7831,
-        longitude: -73.9712,
+        latitude: -16.9190,
+        longitude: 35.2610,
         lastUpdate: new Date(),
       },
     ];
@@ -188,7 +188,15 @@ export class MemStorage implements IStorage {
 
   async createVehicle(vehicle: InsertVehicle): Promise<Vehicle> {
     const newVehicle: Vehicle = {
-      ...vehicle,
+      id: vehicle.id,
+      driverName: vehicle.driverName,
+      corridor: vehicle.corridor,
+      speed: (vehicle as any).speed ?? 0,
+      fuel: (vehicle as any).fuel ?? 100,
+      status: (vehicle as any).status ?? "active",
+      vehicleType: vehicle.vehicleType,
+      latitude: vehicle.latitude,
+      longitude: vehicle.longitude,
       lastUpdate: new Date(),
     };
     this.vehicles.set(vehicle.id, newVehicle);
@@ -223,8 +231,14 @@ export class MemStorage implements IStorage {
 
   async createRoute(route: InsertRoute): Promise<Route> {
     const newRoute: Route = {
-      ...route,
       id: randomUUID(),
+      vehicleId: route.vehicleId,
+      startLocation: route.startLocation,
+      endLocation: route.endLocation,
+      distance: route.distance,
+      duration: route.duration,
+      avgSpeed: route.avgSpeed,
+      stops: (route as any).stops ?? 0,
       date: new Date(),
     };
     this.routes.set(newRoute.id, newRoute);
@@ -238,8 +252,12 @@ export class MemStorage implements IStorage {
 
   async createAlert(alert: InsertAlert): Promise<Alert> {
     const newAlert: Alert = {
-      ...alert,
       id: randomUUID(),
+      vehicleId: alert.vehicleId,
+      type: alert.type,
+      message: alert.message,
+      severity: alert.severity,
+      isActive: (alert as any).isActive ?? true,
       createdAt: new Date(),
     };
     this.alerts.set(newAlert.id, newAlert);
@@ -266,8 +284,11 @@ export class MemStorage implements IStorage {
 
   async createDailyMetrics(metrics: InsertDailyMetrics): Promise<DailyMetrics> {
     const newMetrics: DailyMetrics = {
-      ...metrics,
       id: randomUUID(),
+      vehicleId: metrics.vehicleId,
+      totalDistance: (metrics as any).totalDistance ?? 0,
+      fuelEfficiency: (metrics as any).fuelEfficiency ?? 0,
+      avgSpeed: (metrics as any).avgSpeed ?? 0,
       date: new Date(),
     };
     this.dailyMetrics.set(newMetrics.id, newMetrics);

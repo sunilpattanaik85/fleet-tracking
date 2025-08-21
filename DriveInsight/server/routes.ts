@@ -1,16 +1,46 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, type WebSocket } from "ws";
 import { storage } from "./storage";
+import cookieParser from "cookie-parser";
+import { authRouter, configureAuth, requireJwt, requireSession } from "./auth";
 import { insertVehicleSchema, insertRouteSchema, insertAlertSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
-  
-  // Placeholder for WebSocket functionality - temporarily disabled to avoid port conflicts
+  app.use(cookieParser());
+  configureAuth(app);
+  app.use("/api/auth", authRouter());
+
+  // WebSocket server mounted on the same HTTP server, on path /ws
+  const wss = new WebSocketServer({ noServer: true });
+  const wsClients = new Set<WebSocket>();
+
+  httpServer.on("upgrade", (request, socket, head) => {
+    const url = request.url || "";
+    // Only handle our app websocket path. Let other upgrade requests (e.g., Vite HMR) pass through.
+    if (url.startsWith("/ws")) {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit("connection", ws, request);
+      });
+    }
+    // Do not destroy other upgrade sockets; Vite HMR and other middlewares may handle them.
+  });
+
+  wss.on("connection", (ws) => {
+    wsClients.add(ws);
+    ws.on("close", () => wsClients.delete(ws));
+  });
+
   function broadcastVehicleUpdate(vehicle: any) {
-    // WebSocket functionality temporarily disabled
-    console.log('Vehicle update would be broadcast:', vehicle.id);
+    const message = JSON.stringify({ type: "vehicle_update", vehicleId: vehicle.id });
+    for (const client of wsClients) {
+      if (client.readyState === client.OPEN) {
+        try {
+          client.send(message);
+        } catch {}
+      }
+    }
   }
 
   // Vehicle routes
@@ -35,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/vehicles", async (req, res) => {
+  app.post("/api/vehicles", requireSession, async (req, res) => {
     try {
       const validated = insertVehicleSchema.parse(req.body);
       const vehicle = await storage.createVehicle(validated);
@@ -46,7 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/vehicles/:id", async (req, res) => {
+  app.patch("/api/vehicles/:id", requireSession, async (req, res) => {
     try {
       const vehicle = await storage.updateVehicle(req.params.id, req.body);
       if (!vehicle) {
@@ -59,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/vehicles/:id", async (req, res) => {
+  app.delete("/api/vehicles/:id", requireJwt(["admin"]), async (req, res) => {
     try {
       const deleted = await storage.deleteVehicle(req.params.id);
       if (!deleted) {

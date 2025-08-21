@@ -16,11 +16,11 @@ export default function Sidebar() {
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
           <div className="w-10 h-10 bg-dashboard-blue rounded-lg flex items-center justify-center">
-            <Truck className="text-white h-6 w-6" />
+            <Truck className="text-primary-foreground h-6 w-6" />
           </div>
           <div>
             <h1 className="text-xl font-bold" data-testid="app-title">FleetTrack</h1>
-            <p className="text-gray-400 text-xs">Analytics Dashboard</p>
+            <p className="text-muted-foreground text-xs">Analytics Dashboard</p>
           </div>
         </div>
         
@@ -33,8 +33,8 @@ export default function Sidebar() {
                 data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg w-full text-left transition-colors ${
                   item.current
-                    ? "bg-dashboard-blue text-white"
-                    : "text-gray-300 hover:bg-dashboard-accent"
+                    ? "bg-dashboard-blue text-primary-foreground"
+                    : "text-muted-foreground hover:bg-dashboard-accent"
                 }`}
               >
                 <Icon className="w-5 h-5" />

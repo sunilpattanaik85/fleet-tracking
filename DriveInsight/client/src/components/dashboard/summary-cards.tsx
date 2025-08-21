@@ -37,7 +37,7 @@ export default function SummaryCards() {
   if (!summary) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-400">Failed to load summary statistics</p>
+        <p className="text-muted-foreground">Failed to load summary statistics</p>
       </div>
     );
   }
@@ -90,7 +90,7 @@ export default function SummaryCards() {
       {cards.map((card) => {
         const Icon = card.icon;
         const TrendIcon = card.trend === "up" ? TrendingUp : card.trend === "down" ? TrendingDown : Minus;
-        const trendColor = card.trend === "up" ? "text-green-400" : card.trend === "down" ? "text-yellow-400" : "text-gray-400";
+        const trendColor = card.trend === "up" ? "text-green-600" : card.trend === "down" ? "text-yellow-600" : "text-muted-foreground";
 
         return (
           <Card
@@ -101,7 +101,7 @@ export default function SummaryCards() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-400 text-sm">{card.title}</p>
+                  <p className="text-muted-foreground text-sm">{card.title}</p>
                   <p className="text-3xl font-bold" data-testid={`summary-value-${card.title.toLowerCase().replace(/\s+/g, '-')}`}>
                     {card.value}
                   </p>
