@@ -1,8 +1,6 @@
 import express, { type Request, type Response, type NextFunction } from "express";
 import session from "express-session";
 import MemorystoreFactory from "memorystore";
-import Redis from "ioredis";
-import connectRedis from "connect-redis";
 import csrf from "csurf";
 import nodemailer from "nodemailer";
 import speakeasy from "speakeasy";
@@ -57,15 +55,7 @@ passport.deserializeUser((id: string, done) => {
 
 export function configureAuth(app: express.Express) {
   const MemoryStore = MemorystoreFactory(session);
-  const redisUrl = process.env.REDIS_URL;
-  let store: any;
-  if (redisUrl) {
-    const RedisStore = connectRedis(session);
-    const redis = new Redis(redisUrl);
-    store = new (RedisStore as any)({ client: redis, prefix: "sess:" });
-  } else {
-    store = new MemoryStore({ checkPeriod: 1000 * 60 * 60 });
-  }
+  const store: any = new MemoryStore({ checkPeriod: 1000 * 60 * 60 });
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "dev-session-secret",
