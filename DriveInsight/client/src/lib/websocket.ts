@@ -22,6 +22,9 @@ export function connectWebSocket() {
     const devPort = ((import.meta as any).env?.VITE_BACKEND_PORT as string | undefined) || "5000";
     const devUrl = `${protocol}//${host}:${devPort}/ws`;
     if (devUrl !== sameOrigin) candidates.push(devUrl);
+    // Also try 8080 if backend is running separately
+    const altUrl = `${protocol}//${host}:8080/ws`;
+    if (altUrl !== sameOrigin && altUrl !== devUrl) candidates.push(altUrl);
   }
 
   function tryConnect(urls: string[], attemptIndex = 0) {

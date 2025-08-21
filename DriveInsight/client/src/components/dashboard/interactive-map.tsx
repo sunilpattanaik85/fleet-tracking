@@ -14,7 +14,7 @@ export default function InteractiveMap() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedCorridor, setSelectedCorridor] = useState("All Corridors");
 
-  const { data: vehicles = [], isLoading } = useQuery<Vehicle[]>({
+  const { data: vehicles = [], isLoading, refetch } = useQuery<Vehicle[]>({
     queryKey: ["/api/vehicles"],
     refetchInterval: 30000,
   });
@@ -127,6 +127,14 @@ export default function InteractiveMap() {
       map.fitBounds(group.getBounds().pad(0.2));
     }
   }, [filteredVehicles]);
+
+  // Listen to WS updates via global ws handler (invalidates queries on vehicle_update)
+  useEffect(() => {
+    // When ws invalidates queries, react-query refetches; ensure immediate refetch when window regains focus
+    const onFocus = () => refetch();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [refetch]);
 
   // Draw Malawi trade corridor polylines (approximate Malawi segments)
   useEffect(() => {
