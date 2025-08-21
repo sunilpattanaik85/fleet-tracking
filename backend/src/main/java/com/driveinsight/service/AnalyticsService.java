@@ -1,5 +1,61 @@
 package com.driveinsight.service;
 
+import com.driveinsight.model.Vehicle;
+import com.driveinsight.repo.VehicleRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class AnalyticsService {
+    private final VehicleRepository vehicleRepository;
+
+    public AnalyticsService(VehicleRepository vehicleRepository) {
+        this.vehicleRepository = vehicleRepository;
+    }
+
+    public Map<String, Object> getSummary() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        long active = vehicles.stream().filter(v -> "active".equalsIgnoreCase(v.getStatus())).count();
+        double avgSpeed = vehicles.stream().mapToDouble(Vehicle::getSpeed).average().orElse(0);
+        Set<String> corridors = new HashSet<>();
+        vehicles.forEach(v -> corridors.add(v.getCorridor()));
+        Map<String, Object> m = new HashMap<>();
+        m.put("totalVehicles", vehicles.size());
+        m.put("activeVehicles", active);
+        m.put("avgSpeed", Math.round(avgSpeed * 10.0) / 10.0);
+        m.put("totalDistanceToday", 0);
+        m.put("activeCorridors", corridors.size());
+        return m;
+    }
+
+    public List<Map<String, Object>> getCorridorDistribution() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        vehicleRepository.findAll().forEach(v -> counts.merge(v.getCorridor(), 1L, Long::sum));
+        List<Map<String, Object>> out = new ArrayList<>();
+        counts.forEach((k, v) -> out.add(Map.of("corridor", k, "count", v)));
+        return out;
+    }
+
+    public List<Map<String, Object>> getVehicleTypeDistribution() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        vehicleRepository.findAll().forEach(v -> counts.merge(v.getVehicleType(), 1L, Long::sum));
+        List<Map<String, Object>> out = new ArrayList<>();
+        counts.forEach((k, v) -> out.add(Map.of("type", k, "count", v)));
+        return out;
+    }
+
+    public List<Map<String, Object>> getFleetStatusDistribution() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        vehicleRepository.findAll().forEach(v -> counts.merge(v.getStatus(), 1L, Long::sum));
+        List<Map<String, Object>> out = new ArrayList<>();
+        counts.forEach((k, v) -> out.add(Map.of("status", k, "count", v)));
+        return out;
+    }
+}
+
+package com.driveinsight.service;
+
 import com.driveinsight.model.DailyMetricsRecord;
 import com.driveinsight.model.Vehicle;
 import com.driveinsight.repo.DailyMetricsRecordRepository;
