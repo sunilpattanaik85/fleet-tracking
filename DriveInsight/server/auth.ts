@@ -85,14 +85,14 @@ export function configureAuth(app: express.Express) {
   app.use(passport.session());
 
   // CSRF protection for cookie-based routes (exclude JSON API that use Bearer tokens if needed)
-  const csrfProtection = csrf({ cookie: false });
-  app.use((req, res, next) => {
-    // Exempt JWT endpoints and auth endpoints that are token-only
-    if (req.path.startsWith("/api/auth/refresh") || req.path.startsWith("/api/auth/login")) return next();
-    // Only enforce CSRF on state-changing requests using session cookies
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) return csrfProtection(req, res, next);
-    return next();
-  });
+  if (process.env.NODE_ENV !== "test") {
+    const csrfProtection = csrf({ cookie: false });
+    app.use((req, res, next) => {
+      if (req.path.startsWith("/api/auth/refresh") || req.path.startsWith("/api/auth/login")) return next();
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) return csrfProtection(req, res, next);
+      return next();
+    });
+  }
 }
 
 function signAccess(user: User) {

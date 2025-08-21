@@ -188,7 +188,15 @@ export class MemStorage implements IStorage {
 
   async createVehicle(vehicle: InsertVehicle): Promise<Vehicle> {
     const newVehicle: Vehicle = {
-      ...vehicle,
+      id: vehicle.id,
+      driverName: vehicle.driverName,
+      corridor: vehicle.corridor,
+      speed: (vehicle as any).speed ?? 0,
+      fuel: (vehicle as any).fuel ?? 100,
+      status: (vehicle as any).status ?? "active",
+      vehicleType: vehicle.vehicleType,
+      latitude: vehicle.latitude,
+      longitude: vehicle.longitude,
       lastUpdate: new Date(),
     };
     this.vehicles.set(vehicle.id, newVehicle);
@@ -223,8 +231,14 @@ export class MemStorage implements IStorage {
 
   async createRoute(route: InsertRoute): Promise<Route> {
     const newRoute: Route = {
-      ...route,
       id: randomUUID(),
+      vehicleId: route.vehicleId,
+      startLocation: route.startLocation,
+      endLocation: route.endLocation,
+      distance: route.distance,
+      duration: route.duration,
+      avgSpeed: route.avgSpeed,
+      stops: (route as any).stops ?? 0,
       date: new Date(),
     };
     this.routes.set(newRoute.id, newRoute);
@@ -238,8 +252,12 @@ export class MemStorage implements IStorage {
 
   async createAlert(alert: InsertAlert): Promise<Alert> {
     const newAlert: Alert = {
-      ...alert,
       id: randomUUID(),
+      vehicleId: alert.vehicleId,
+      type: alert.type,
+      message: alert.message,
+      severity: alert.severity,
+      isActive: (alert as any).isActive ?? true,
       createdAt: new Date(),
     };
     this.alerts.set(newAlert.id, newAlert);
@@ -266,8 +284,11 @@ export class MemStorage implements IStorage {
 
   async createDailyMetrics(metrics: InsertDailyMetrics): Promise<DailyMetrics> {
     const newMetrics: DailyMetrics = {
-      ...metrics,
       id: randomUUID(),
+      vehicleId: metrics.vehicleId,
+      totalDistance: (metrics as any).totalDistance ?? 0,
+      fuelEfficiency: (metrics as any).fuelEfficiency ?? 0,
+      avgSpeed: (metrics as any).avgSpeed ?? 0,
       date: new Date(),
     };
     this.dailyMetrics.set(newMetrics.id, newMetrics);
