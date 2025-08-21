@@ -62,7 +62,7 @@ export function configureAuth(app: express.Express) {
   if (redisUrl) {
     const RedisStore = connectRedis(session);
     const redis = new Redis(redisUrl);
-    store = new RedisStore({ client: redis, prefix: "sess:" });
+    store = new (RedisStore as any)({ client: redis, prefix: "sess:" });
   } else {
     store = new MemoryStore({ checkPeriod: 1000 * 60 * 60 });
   }
@@ -148,7 +148,7 @@ export function authRouter() {
   });
 
   router.post("/login", (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("local", (err, user: User, info) => {
+    passport.authenticate("local", (err: any, user: User, info: any) => {
       if (err) return next(err);
       if (!user) return res.status(401).json({ message: info?.message || "Unauthorized" });
       if (!user.emailVerified) return res.status(403).json({ message: "Email not verified" });
@@ -172,7 +172,7 @@ export function authRouter() {
     if (!user) return res.status(401).json({ message: "Session required" });
     const secret = speakeasy.generateSecret({ name: `DriveInsight (${user.email})` });
     users.set(user.id, { ...user, mfaSecret: secret.base32 });
-    QRCode.toDataURL(secret.otpauth_url!, (err, dataUrl) => {
+    QRCode.toDataURL(secret.otpauth_url!, (err: any, dataUrl: string) => {
       if (err) return res.status(500).json({ message: "QR generate failed" });
       res.json({ otpauthUrl: secret.otpauth_url, qr: dataUrl });
     });
