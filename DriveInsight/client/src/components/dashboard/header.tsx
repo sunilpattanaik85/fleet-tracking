@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function Header() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,7 +17,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-dashboard-secondary border-b border-dashboard-accent px-6 py-4">
+    <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold" data-testid="page-title">
@@ -34,10 +35,11 @@ export default function Header() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               data-testid="search-input"
-              className="bg-dashboard-accent text-white placeholder-gray-400 px-4 py-2 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-dashboard-blue border-0"
+              className="pr-10"
             />
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           </div>
+          <ThemeToggle />
           <Button
             onClick={handleRefresh}
             data-testid="refresh-button"
