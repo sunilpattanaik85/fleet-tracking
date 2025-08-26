@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Vehicle, Route } from "@shared/schema";
 
+type RoutePoint = { id: number; routeId: number; latitude: number; longitude: number; sequence: number };
+
 export default function RoutePage() {
   const [, params] = useRoute("/route/:vehicleId");
   const vehicleId = params?.vehicleId ?? "";
@@ -16,6 +18,11 @@ export default function RoutePage() {
   const { data: routes = [] } = useQuery<Route[]>({ queryKey: ["/api/routes"] });
   const vehicleRoutes = useMemo(() => routes.filter(r => r.vehicleId === vehicleId), [routes, vehicleId]);
   const latest = vehicleRoutes[0];
+
+  const { data: points = [] } = useQuery<RoutePoint[]>({
+    queryKey: latest ? ["/api/routes", latest.id, "points"] : ["/api/routes", "none", "points"],
+    enabled: !!latest,
+  });
 
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
@@ -40,19 +47,18 @@ export default function RoutePage() {
     const layer = layerRef.current;
     layer.clearLayers();
 
-    if (latest) {
-      // Fake a simple start/end polyline around the current vehicle position (no detailed points available)
-      // If backend provides route coordinates, replace this with the actual polyline points
-      const start: [number, number] = vehicle ? [vehicle.latitude, vehicle.longitude] : [-13.2543, 34.3015];
-      const end: [number, number] = [start[0] + 0.2, start[1] + 0.2];
-      const line = L.polyline([start, end], { color: "#0EA5E9", weight: 4 }).addTo(layer);
-      L.marker(start).addTo(layer).bindPopup(`Start: ${latest.startLocation}`);
-      L.marker(end).addTo(layer).bindPopup(`End: ${latest.endLocation}`);
+    if (points.length > 0) {
+      const coords = points.sort((a, b) => a.sequence - b.sequence).map(p => [p.latitude, p.longitude]) as [number, number][];
+      const line = L.polyline(coords, { color: "#0EA5E9", weight: 4 }).addTo(layer);
+      const start = coords[0];
+      const end = coords[coords.length - 1];
+      L.marker(start).addTo(layer).bindPopup(`Start: ${latest?.startLocation ?? "Start"}`);
+      L.marker(end).addTo(layer).bindPopup(`End: ${latest?.endLocation ?? "End"}`);
       map.fitBounds(line.getBounds().pad(0.2));
     } else if (vehicle) {
       map.setView([vehicle.latitude, vehicle.longitude], 10);
     }
-  }, [latest, vehicle]);
+  }, [points, latest, vehicle]);
 
   return (
     <Card className="bg-card border-border">
