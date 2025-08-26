@@ -11,6 +11,7 @@ export default function InteractiveMap() {
   const leafletMapRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markerLayerRef = useRef<L.LayerGroup | null>(null);
+  const pathLayerRef = useRef<L.LayerGroup | null>(null);
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [selectedCorridor, setSelectedCorridor] = useState("All Corridors");
@@ -30,6 +31,30 @@ export default function InteractiveMap() {
     Durban: "#8B5CF6",
   };
 
+  // Approximate Malawi corridor paths (rough visualization)
+  const corridorPaths: Record<string, [number, number][]> = {
+    Beira: [
+      [-15.7861, 35.0058], // Blantyre
+      [-16.5, 35.0],
+      [-19.8200, 34.8440], // Beira
+    ],
+    Nacala: [
+      [-13.9626, 33.7741], // Lilongwe
+      [-15.0, 36.0],
+      [-14.5417, 40.6728], // Nacala
+    ],
+    "Central (Dar es Salaam)": [
+      [-11.4650, 34.0200], // Mzuzu
+      [-8.9000, 34.0000],
+      [-6.7924, 39.2083], // Dar es Salaam
+    ],
+    Durban: [
+      [-15.7861, 35.0058], // Blantyre
+      [-23.9000, 31.0000],
+      [-29.8587, 31.0218], // Durban
+    ],
+  };
+
   const filteredVehicles = selectedCorridor === "All Corridors"
     ? vehicles
     : vehicles.filter(v => v.corridor === selectedCorridor);
@@ -47,14 +72,15 @@ export default function InteractiveMap() {
   useEffect(() => {
     if (!mapContainerRef.current || leafletMapRef.current) return;
 
-    // Initialize map centered roughly at a global view or first vehicle if present
+    // Center on Malawi by default
+    const malawiCenter: L.LatLngExpression = [-13.2543, 34.3015];
     const initialCenter: L.LatLngExpression = vehicles.length
       ? [vehicles[0].latitude, vehicles[0].longitude]
-      : [20.5937, 78.9629]; // Default to India center as a placeholder
+      : malawiCenter;
 
     const map = L.map(mapContainerRef.current, {
       center: initialCenter,
-      zoom: vehicles.length ? 10 : 5,
+      zoom: vehicles.length ? 8 : 6,
       zoomControl: false,
     });
     leafletMapRef.current = map;
@@ -69,13 +95,18 @@ export default function InteractiveMap() {
     markers.addTo(map);
     markerLayerRef.current = markers;
 
+    // Layer for corridor paths
+    const paths = L.layerGroup();
+    paths.addTo(map);
+    pathLayerRef.current = paths;
+
     return () => {
       map.remove();
       leafletMapRef.current = null;
       tileLayerRef.current = null;
       markerLayerRef.current = null;
+      pathLayerRef.current = null;
     };
-    // We intentionally do not depend on vehicles or theme here to only init once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapContainerRef.current]);
 
@@ -94,15 +125,35 @@ export default function InteractiveMap() {
     tileLayerRef.current = tile;
   }, [theme]);
 
-  // Update markers when vehicles or corridor filter changes
+  // Update markers and corridor paths when vehicles or corridor filter changes
   useEffect(() => {
-    if (!leafletMapRef.current || !markerLayerRef.current) return;
+    if (!leafletMapRef.current || !markerLayerRef.current || !pathLayerRef.current) return;
 
     const map = leafletMapRef.current;
     const markers = markerLayerRef.current;
+    const paths = pathLayerRef.current;
 
     markers.clearLayers();
+    paths.clearLayers();
 
+    // Draw corridor paths
+    const corridorsToDraw = selectedCorridor === "All Corridors"
+      ? Object.keys(corridorPaths)
+      : [selectedCorridor];
+
+    const allBounds: L.LatLngExpression[] = [];
+
+    corridorsToDraw.forEach((name) => {
+      const coords = corridorPaths[name];
+      if (coords && coords.length > 0) {
+        const color = corridorColors[name] || "#0EA5E9";
+        const poly = L.polyline(coords, { color, weight: 3, opacity: 0.9 });
+        poly.addTo(paths);
+        coords.forEach(c => allBounds.push(c));
+      }
+    });
+
+    // Draw vehicle markers
     filteredVehicles.forEach((vehicle) => {
       const color = corridorColors[vehicle.corridor] || "#0EA5E9";
       const circle = L.circleMarker([vehicle.latitude, vehicle.longitude], {
@@ -117,16 +168,15 @@ export default function InteractiveMap() {
         `${vehicle.id} - ${vehicle.driverName} - Speed: ${vehicle.speed} km/h`,
       );
       circle.addTo(markers);
+      allBounds.push([vehicle.latitude, vehicle.longitude]);
     });
 
-    // Fit bounds to markers when there are vehicles
-    if (filteredVehicles.length > 0) {
-      const bounds = L.latLngBounds(
-        filteredVehicles.map((v) => [v.latitude, v.longitude] as [number, number]),
-      );
+    // Fit bounds if we have any points
+    if (allBounds.length > 0) {
+      const bounds = L.latLngBounds(allBounds as [number, number][]);
       map.fitBounds(bounds.pad(0.2));
     }
-  }, [filteredVehicles]);
+  }, [filteredVehicles, selectedCorridor]);
 
   const handleZoomIn = () => {
     if (leafletMapRef.current) leafletMapRef.current.zoomIn();

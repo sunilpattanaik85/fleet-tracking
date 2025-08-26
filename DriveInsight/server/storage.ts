@@ -68,8 +68,8 @@ export class MemStorage implements IStorage {
         fuel: 78,
         status: "active",
         vehicleType: "truck",
-        latitude: 40.7589,
-        longitude: -73.9851,
+        latitude: -15.7861, // Blantyre
+        longitude: 35.0058,
         lastUpdate: new Date(),
       },
       {
@@ -80,8 +80,8 @@ export class MemStorage implements IStorage {
         fuel: 45,
         status: "active",
         vehicleType: "van",
-        latitude: 40.7282,
-        longitude: -74.0776,
+        latitude: -13.9626, // Lilongwe
+        longitude: 33.7741,
         lastUpdate: new Date(),
       },
       {
@@ -92,8 +92,8 @@ export class MemStorage implements IStorage {
         fuel: 92,
         status: "idle",
         vehicleType: "truck",
-        latitude: 40.7614,
-        longitude: -73.9776,
+        latitude: -11.4650, // Mzuzu
+        longitude: 34.0200,
         lastUpdate: new Date(),
       },
       {
@@ -104,8 +104,8 @@ export class MemStorage implements IStorage {
         fuel: 67,
         status: "active",
         vehicleType: "sedan",
-        latitude: 40.7505,
-        longitude: -73.9934,
+        latitude: -15.7861, // Blantyre
+        longitude: 35.0058,
         lastUpdate: new Date(),
       },
       {
@@ -116,8 +116,8 @@ export class MemStorage implements IStorage {
         fuel: 85,
         status: "maintenance",
         vehicleType: "truck",
-        latitude: 40.7831,
-        longitude: -73.9712,
+        latitude: -13.9626, // Lilongwe
+        longitude: 33.7741,
         lastUpdate: new Date(),
       },
     ];
