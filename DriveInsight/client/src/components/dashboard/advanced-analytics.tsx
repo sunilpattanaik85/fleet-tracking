@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { AlertTriangle, Wrench, Gauge, WifiOff } from "lucide-react";
 import type { Alert, Vehicle, Route } from "@shared/schema";
+import { useLocation } from "wouter";
 
 export default function AdvancedAnalytics() {
   const { data: vehicleTypes = [], isLoading: typesLoading } = useQuery<{ type: string; count: number }[]>({
@@ -79,6 +80,8 @@ export default function AdvancedAnalytics() {
         return "bg-red-500 bg-opacity-20";
     }
   };
+
+  const [, setLocation] = useLocation();
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -281,6 +284,7 @@ export default function AdvancedAnalytics() {
                 className="w-full bg-dashboard-blue hover:bg-blue-600 text-white py-2 rounded-lg text-sm transition-colors"
                 data-testid="view-full-route-button"
                 disabled={!latestRoute}
+                onClick={() => latestRoute && setLocation(`/route/${latestRoute.vehicleId}`)}
               >
                 View Full Route
               </Button>

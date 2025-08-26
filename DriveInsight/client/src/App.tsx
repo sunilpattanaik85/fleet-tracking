@@ -6,11 +6,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import Dashboard from "@/pages/dashboard";
 import NotFound from "@/pages/not-found";
+import RoutePage from "@/pages/route";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/route/:vehicleId" component={RoutePage} />
       <Route component={NotFound} />
     </Switch>
   );
