@@ -33,10 +33,10 @@ export default function CorridorAnalytics() {
   }));
 
   const speedData = [
-    { corridor: "North", speed: 48.2 },
-    { corridor: "South", speed: 42.1 },
-    { corridor: "East", speed: 39.8 },
-    { corridor: "West", speed: 45.7 },
+    { corridor: "Beira", speed: 48.2 },
+    { corridor: "Nacala", speed: 42.1 },
+    { corridor: "Central (Dar es Salaam)", speed: 39.8 },
+    { corridor: "Durban", speed: 45.7 },
   ];
 
   return (

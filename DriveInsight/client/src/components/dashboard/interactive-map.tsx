@@ -22,12 +22,12 @@ export default function InteractiveMap() {
     refetchInterval: 30000,
   });
 
-  const corridors = ["All Corridors", "North", "South", "East", "West"];
+  const corridors = ["All Corridors", "Beira", "Nacala", "Central (Dar es Salaam)", "Durban"];
   const corridorColors: Record<string, string> = {
-    North: "#0EA5E9",
-    South: "#10B981",
-    East: "#F59E0B",
-    West: "#8B5CF6",
+    Beira: "#0EA5E9",
+    Nacala: "#10B981",
+    "Central (Dar es Salaam)": "#F59E0B",
+    Durban: "#8B5CF6",
   };
 
   const filteredVehicles = selectedCorridor === "All Corridors"

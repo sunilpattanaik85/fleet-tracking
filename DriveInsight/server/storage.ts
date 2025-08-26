@@ -63,7 +63,7 @@ export class MemStorage implements IStorage {
       {
         id: "V-001",
         driverName: "John Smith",
-        corridor: "North",
+        corridor: "Beira",
         speed: 45,
         fuel: 78,
         status: "active",
@@ -75,7 +75,7 @@ export class MemStorage implements IStorage {
       {
         id: "V-002",
         driverName: "Sarah Johnson",
-        corridor: "South",
+        corridor: "Nacala",
         speed: 41,
         fuel: 45,
         status: "active",
@@ -87,7 +87,7 @@ export class MemStorage implements IStorage {
       {
         id: "V-003",
         driverName: "Mike Davis",
-        corridor: "East",
+        corridor: "Central (Dar es Salaam)",
         speed: 0,
         fuel: 92,
         status: "idle",
@@ -99,7 +99,7 @@ export class MemStorage implements IStorage {
       {
         id: "V-004",
         driverName: "Lisa Chen",
-        corridor: "West",
+        corridor: "Durban",
         speed: 52,
         fuel: 67,
         status: "active",
@@ -111,7 +111,7 @@ export class MemStorage implements IStorage {
       {
         id: "V-005",
         driverName: "Robert Wilson",
-        corridor: "North",
+        corridor: "Beira",
         speed: 0,
         fuel: 85,
         status: "maintenance",

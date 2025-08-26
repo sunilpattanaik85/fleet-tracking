@@ -121,10 +121,10 @@ export default function VehicleTable() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Corridors</SelectItem>
-              <SelectItem value="North">North</SelectItem>
-              <SelectItem value="South">South</SelectItem>
-              <SelectItem value="East">East</SelectItem>
-              <SelectItem value="West">West</SelectItem>
+              <SelectItem value="Beira">Beira</SelectItem>
+              <SelectItem value="Nacala">Nacala</SelectItem>
+              <SelectItem value="Central (Dar es Salaam)">Central (Dar es Salaam)</SelectItem>
+              <SelectItem value="Durban">Durban</SelectItem>
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
