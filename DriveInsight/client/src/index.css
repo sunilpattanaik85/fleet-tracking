@@ -1,0 +1,470 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 25% 7.8431%);
+  --card: hsl(180 6.6667% 97.0588%);
+  --card-foreground: hsl(210 25% 7.8431%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 25% 7.8431%);
+  --primary: hsl(200.6 100% 52.7%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 25% 7.8431%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(240 1.9608% 90%);
+  --muted-foreground: hsl(210 25% 7.8431%);
+  --accent: hsl(211.5789 51.3514% 92.7451%);
+  --accent-foreground: hsl(200.6 100% 52.7%);
+  --destructive: hsl(356.3033 90.5579% 54.3137%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(201.4286 30.4348% 90.9804%);
+  --input: hsl(200 23.0769% 97.4510%);
+  --ring: hsl(200.6 100% 52.7%);
+  --chart-1: hsl(200.6 100% 52.7%);
+  --chart-2: hsl(142.1 76.2% 36.3%);
+  --chart-3: hsl(47.9 95.8% 53.1%);
+  --chart-4: hsl(147.1429 78.5047% 41.9608%);
+  --chart-5: hsl(341.4894 75.2000% 50.9804%);
+  --sidebar: hsl(180 6.6667% 97.0588%);
+  --sidebar-foreground: hsl(210 25% 7.8431%);
+  --sidebar-primary: hsl(200.6 100% 52.7%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(211.5789 51.3514% 92.7451%);
+  --sidebar-accent-foreground: hsl(200.6 100% 52.7%);
+  --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
+  --sidebar-ring: hsl(200.6 100% 52.7%);
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.05), 0px 1px 3px 0px hsl(0 0% 0% / 0.1);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px 0px hsl(0 0% 0% / 0.06);
+  --shadow-md: 0px 4px 6px -1px hsl(0 0% 0% / 0.1), 0px 2px 4px -1px hsl(0 0% 0% / 0.06);
+  --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.1), 0px 4px 6px -2px hsl(0 0% 0% / 0.05);
+  --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.1), 0px 10px 10px -5px hsl(0 0% 0% / 0.04);
+  --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.25);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+  
+  /* Dashboard specific colors matching the design reference exactly */
+  --dashboard-dark: hsl(220.9 39.3% 11%);  /* #0F172A - slate-900 */
+  --dashboard-secondary: hsl(222.2 84.5% 4.9%);  /* #1E293B - slate-800 */
+  --dashboard-accent: hsl(215.4 16.3% 46.9%);  /* #334155 - slate-700 */
+  --dashboard-blue: hsl(199.1 89% 48%);  /* #0EA5E9 - sky-500 */
+  --dashboard-cyan: hsl(187 85.5% 44.1%);  /* #06B6D4 - cyan-500 */
+}
+
+.dark {
+  --background: hsl(220.9 39.3% 11%);
+  --foreground: hsl(210 40% 98%);
+  --card: hsl(222.2 84.5% 4.9%);
+  --card-foreground: hsl(210 40% 98%);
+  --popover: hsl(220.9 39.3% 11%);
+  --popover-foreground: hsl(210 40% 98%);
+  --primary: hsl(199.1 89% 48%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(222.2 84.5% 4.9%);
+  --secondary-foreground: hsl(210 40% 98%);
+  --muted: hsl(215.4 16.3% 46.9%);
+  --muted-foreground: hsl(215.4 16.3% 65.1%);
+  --accent: hsl(215.4 16.3% 46.9%);
+  --accent-foreground: hsl(210 40% 98%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(215.4 16.3% 46.9%);
+  --input: hsl(215.4 16.3% 46.9%);
+  --ring: hsl(199.1 89% 48%);
+  --chart-1: hsl(199.1 89% 48%);
+  --chart-2: hsl(142.1 76.2% 36.3%);
+  --chart-3: hsl(47.9 95.8% 53.1%);
+  --chart-4: hsl(142.1 76.2% 36.3%);
+  --chart-5: hsl(340.7 75% 50.6%);
+  --sidebar: hsl(222.2 84.5% 4.9%);
+  --sidebar-foreground: hsl(210 40% 98%);
+  --sidebar-primary: hsl(199.1 89% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(215.4 16.3% 46.9%);
+  --sidebar-accent-foreground: hsl(210 40% 98%);
+  --sidebar-border: hsl(215.4 16.3% 46.9%);
+  --sidebar-ring: hsl(199.1 89% 48%);
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  
+  /* Dashboard specific colors for dark mode (matching the design reference exactly) */
+  --dashboard-dark: hsl(220.9 39.3% 11%);  /* #0F172A - slate-900 */
+  --dashboard-secondary: hsl(222.2 84.5% 4.9%);  /* #1E293B - slate-800 */
+  --dashboard-accent: hsl(215.4 16.3% 46.9%);  /* #334155 - slate-700 */
+  --dashboard-blue: hsl(199.1 89% 48%);  /* #0EA5E9 - sky-500 */
+  --dashboard-cyan: hsl(187 85.5% 44.1%);  /* #06B6D4 - cyan-500 */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--background);
+  }
+}
+
+@layer utilities {
+  .bg-dashboard-dark {
+    background-color: var(--dashboard-dark);
+  }
+  .bg-dashboard-secondary {
+    background-color: var(--dashboard-secondary);
+  }
+  .bg-dashboard-accent {
+    background-color: var(--dashboard-accent);
+  }
+  .bg-dashboard-blue {
+    background-color: var(--dashboard-blue);
+  }
+  .bg-dashboard-cyan {
+    background-color: var(--dashboard-cyan);
+  }
+  .text-dashboard-blue {
+    color: var(--dashboard-blue);
+  }
+  .text-dashboard-cyan {
+    color: var(--dashboard-cyan);
+  }
+  .border-dashboard-accent {
+    border-color: var(--dashboard-accent);
+  }
+  .hover\:bg-dashboard-accent:hover {
+    background-color: var(--dashboard-accent);
+  }
+  .hover\:bg-dashboard-blue:hover {
+    background-color: var(--dashboard-blue);
+  }
+  .hover\:bg-blue-600:hover {
+    background-color: hsl(200.6 100% 45%);
+  }
+}
+
+/* Custom scrollbar for better dark theme appearance */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dashboard-accent);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dashboard-blue);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dashboard-cyan);
+}
+
+/* Ensure proper contrast for form elements in dark theme */
+.dark input,
+.dark select,
+.dark textarea {
+  color: hsl(210 40% 98%);
+  background-color: var(--dashboard-accent);
+  border-color: var(--dashboard-accent);
+}
+
+.dark input::placeholder {
+  color: hsl(215.4 16.3% 65.1%);
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  outline: 2px solid var(--dashboard-blue);
+  outline-offset: 2px;
+  border-color: var(--dashboard-blue);
+}
+
+/* Animation classes for smooth transitions */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glassmorphism effect for cards */
+.glass-card {
+  backdrop-filter: blur(10px);
+  background: hsl(222.2 84.5% 4.9% / 0.8);
+  border: 1px solid hsl(215.4 16.3% 46.9% / 0.3);
+}
+
+/* Gradient text for titles */
+.gradient-text {
+  background: linear-gradient(135deg, var(--dashboard-blue), var(--dashboard-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Focus states for better accessibility */
+.focus-ring:focus {
+  outline: 2px solid var(--dashboard-blue);
+  outline-offset: 2px;
+}
+
+/* Custom chart colors that match the dashboard theme */
+.recharts-surface {
+  background: transparent !important;
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--dashboard-accent) !important;
+}
+
+.recharts-text {
+  fill: hsl(215.4 16.3% 65.1%) !important;
+  font-size: 12px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.recharts-legend-item-text {
+  color: hsl(210 40% 98%) !important;
+}
+
+/* Status indicator styles matching design reference */
+.status-active {
+  background-color: hsl(142.1 76.2% 36.3% / 0.2);
+  color: hsl(142.1 76.2% 36.3%);
+}
+
+.status-idle {
+  background-color: hsl(215.4 16.3% 65.1% / 0.2);
+  color: hsl(215.4 16.3% 65.1%);
+}
+
+.status-maintenance {
+  background-color: hsl(25.0 95.0% 53.0% / 0.2);
+  color: hsl(25.0 95.0% 53.0%);
+}
+
+.status-offline {
+  background-color: hsl(0 84.2% 60.2% / 0.2);
+  color: hsl(0 84.2% 60.2%);
+}
+
+/* Fuel level progress bars with proper colors */
+.fuel-high {
+  background-color: hsl(142.1 76.2% 36.3%);
+}
+
+.fuel-medium {
+  background-color: hsl(47.9 95.8% 53.1%);
+}
+
+.fuel-low {
+  background-color: hsl(0 84.2% 60.2%);
+}
+
+/* Loading skeleton animations */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--dashboard-accent) 25%,
+    var(--dashboard-secondary) 50%,
+    var(--dashboard-accent) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Vehicle marker animations for map */
+@keyframes vehicle-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.vehicle-marker {
+  animation: vehicle-pulse 2s ease-in-out infinite;
+}
+
+/* Alert styling for different severity levels */
+.alert-high {
+  background-color: hsl(0 84.2% 60.2% / 0.2);
+  border-left: 4px solid hsl(0 84.2% 60.2%);
+}
+
+.alert-medium {
+  background-color: hsl(47.9 95.8% 53.1% / 0.2);
+  border-left: 4px solid hsl(47.9 95.8% 53.1%);
+}
+
+.alert-low {
+  background-color: hsl(199.1 89% 48% / 0.2);
+  border-left: 4px solid hsl(199.1 89% 48%);
+}
+
+/* Custom button styles matching design */
+.btn-primary {
+  background-color: var(--dashboard-blue);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: hsl(199.1 89% 42%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(199.1 89% 48% / 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--dashboard-accent);
+  color: hsl(210 40% 98%);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--dashboard-blue);
+}
+
+/* Table styling to match design */
+.table-row:hover {
+  background-color: hsl(215.4 16.3% 46.9% / 0.5);
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Card styling with proper shadows and borders */
+.dashboard-card {
+  background-color: var(--dashboard-secondary);
+  border: 1px solid var(--dashboard-accent);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px hsl(0 0% 0% / 0.12), 0 1px 2px hsl(0 0% 0% / 0.24);
+}
+
+/* Typography enhancements */
+.text-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.text-body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-caption {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: hsl(215.4 16.3% 65.1%);
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse,
+  .animate-pulse-slow,
+  .vehicle-marker {
+    animation: none;
+  }
+  
+  .skeleton {
+    animation: none;
+    background: var(--dashboard-accent);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --dashboard-dark: hsl(0 0% 0%);
+    --dashboard-secondary: hsl(0 0% 10%);
+    --dashboard-accent: hsl(0 0% 20%);
+  }
+  
+  .border-dashboard-accent {
+    border-width: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .dashboard-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}
