@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:migrate:corridors": "tsx server/migrations/rename-corridors.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

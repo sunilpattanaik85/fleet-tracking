@@ -18,17 +18,20 @@ public class ApiController {
     private final AlertRecordRepository alertRepository;
     private final DailyMetricsRecordRepository dailyMetricsRepository;
     private final AnalyticsService analyticsService;
+    private final RoutePointRepository routePointRepository;
 
     public ApiController(VehicleRepository vehicleRepository,
                          RouteRecordRepository routeRepository,
                          AlertRecordRepository alertRepository,
                          DailyMetricsRecordRepository dailyMetricsRepository,
-                         AnalyticsService analyticsService) {
+                         AnalyticsService analyticsService,
+                         RoutePointRepository routePointRepository) {
         this.vehicleRepository = vehicleRepository;
         this.routeRepository = routeRepository;
         this.alertRepository = alertRepository;
         this.dailyMetricsRepository = dailyMetricsRepository;
         this.analyticsService = analyticsService;
+        this.routePointRepository = routePointRepository;
     }
 
     // Vehicles CRUD
@@ -83,6 +86,11 @@ public class ApiController {
 
     @PostMapping("/routes")
     public RouteRecord createRoute(@RequestBody RouteRecord route) { return routeRepository.save(route); }
+
+    @GetMapping("/routes/{routeId}/points")
+    public List<RoutePoint> getRoutePoints(@PathVariable Long routeId) {
+        return routePointRepository.findByRouteIdOrderBySequenceAsc(routeId);
+    }
 
     // Daily metrics
     @GetMapping("/metrics/daily")

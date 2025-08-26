@@ -1,16 +1,24 @@
 import { queryClient } from "./queryClient";
 
 let ws: WebSocket | null = null;
+let reconnectTimer: number | null = null;
 
 export function connectWebSocket() {
+  const disabled = import.meta.env.VITE_WS_DISABLED === "true";
+  if (disabled) {
+    return () => {};
+  }
+
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+  const configuredUrl = import.meta.env.VITE_WS_URL as string | undefined;
+  const defaultUrl = `${protocol}//${window.location.host}/ws`;
+  const wsUrl = configuredUrl || defaultUrl;
 
   try {
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
-      console.log('WebSocket connected');
+      console.log('WebSocket connected', wsUrl);
     };
 
     ws.onmessage = (event) => {
@@ -29,8 +37,11 @@ export function connectWebSocket() {
 
     ws.onclose = () => {
       console.log('WebSocket disconnected');
-      // Attempt to reconnect after 5 seconds
-      setTimeout(() => {
+      if (reconnectTimer) {
+        window.clearTimeout(reconnectTimer);
+      }
+      // Attempt to reconnect after 5 seconds unless disabled
+      reconnectTimer = window.setTimeout(() => {
         connectWebSocket();
       }, 5000);
     };
@@ -43,6 +54,10 @@ export function connectWebSocket() {
   }
 
   return () => {
+    if (reconnectTimer) {
+      window.clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
     if (ws) {
       ws.close();
       ws = null;

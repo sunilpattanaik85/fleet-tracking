@@ -13,13 +13,13 @@ export default function CorridorAnalytics() {
   if (corridorLoading) {
     return (
       <div className="space-y-6">
-        <Card className="bg-dashboard-secondary border-dashboard-accent">
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle>Corridor Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </CardContent>
         </Card>
@@ -33,15 +33,15 @@ export default function CorridorAnalytics() {
   }));
 
   const speedData = [
-    { corridor: "North", speed: 48.2 },
-    { corridor: "South", speed: 42.1 },
-    { corridor: "East", speed: 39.8 },
-    { corridor: "West", speed: 45.7 },
+    { corridor: "Beira", speed: 48.2 },
+    { corridor: "Nacala", speed: 42.1 },
+    { corridor: "Central (Dar es Salaam)", speed: 39.8 },
+    { corridor: "Durban", speed: 45.7 },
   ];
 
   return (
     <div className="space-y-6">
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="corridor-distribution-title">Corridor Distribution</CardTitle>
         </CardHeader>
@@ -86,7 +86,7 @@ export default function CorridorAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="corridor-speed-title">Average Speed by Corridor</CardTitle>
         </CardHeader>

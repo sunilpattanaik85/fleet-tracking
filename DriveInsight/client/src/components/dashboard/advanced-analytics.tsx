@@ -1,10 +1,12 @@
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { AlertTriangle, Wrench, Gauge, WifiOff } from "lucide-react";
-import type { Alert } from "@shared/schema";
+import type { Alert, Vehicle, Route } from "@shared/schema";
+import { useLocation } from "wouter";
 
 export default function AdvancedAnalytics() {
   const { data: vehicleTypes = [], isLoading: typesLoading } = useQuery<{ type: string; count: number }[]>({
@@ -21,6 +23,20 @@ export default function AdvancedAnalytics() {
     queryKey: ["/api/alerts"],
     refetchInterval: 30000,
   });
+
+  // Vehicles and routes for Route Analysis
+  const { data: vehicles = [] } = useQuery<Vehicle[]>({ queryKey: ["/api/vehicles"], refetchInterval: 30000 });
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
+  const { data: routes = [] } = useQuery<Route[]>({
+    queryKey: ["/api/routes"],
+    refetchInterval: 30000,
+  });
+
+  const vehicleRoutes = useMemo(() => {
+    return selectedVehicleId ? routes.filter(r => r.vehicleId === selectedVehicleId) : [];
+  }, [routes, selectedVehicleId]);
+
+  const latestRoute = vehicleRoutes[0];
 
   const typeColors = ["#0EA5E9", "#10B981", "#F59E0B"];
   const statusColors = ["#10B981", "#6B7280", "#F97316", "#EF4444"];
@@ -65,17 +81,19 @@ export default function AdvancedAnalytics() {
     }
   };
 
+  const [, setLocation] = useLocation();
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Vehicle Type Distribution */}
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="vehicle-types-title">Vehicle Types</CardTitle>
         </CardHeader>
         <CardContent>
           {typesLoading ? (
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           ) : (
             <>
@@ -122,14 +140,14 @@ export default function AdvancedAnalytics() {
       </Card>
 
       {/* Alert System */}
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="alerts-title">Active Alerts</CardTitle>
         </CardHeader>
         <CardContent>
           {alertsLoading ? (
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -144,13 +162,13 @@ export default function AdvancedAnalytics() {
                     <p className="text-sm font-medium">
                       {alert.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} Alert
                     </p>
-                    <p className="text-xs text-gray-400">{alert.message}</p>
+                    <p className="text-xs text-muted-foreground">{alert.message}</p>
                   </div>
                 </div>
               ))}
               {alerts.length === 0 && (
                 <div className="text-center py-8" data-testid="no-alerts-message">
-                  <p className="text-gray-400">No active alerts</p>
+                  <p className="text-muted-foreground">No active alerts</p>
                 </div>
               )}
             </div>
@@ -159,14 +177,14 @@ export default function AdvancedAnalytics() {
       </Card>
 
       {/* Fleet Utilization */}
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="fleet-status-title">Fleet Status</CardTitle>
         </CardHeader>
         <CardContent>
           {statusLoading ? (
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           ) : (
             <>
@@ -218,49 +236,55 @@ export default function AdvancedAnalytics() {
       </Card>
 
       {/* Route Visualization */}
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="route-analysis-title">Route Analysis</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <Select defaultValue="">
-              <SelectTrigger className="w-full bg-dashboard-accent border-0" data-testid="route-vehicle-select">
+            <Select value={selectedVehicleId} onValueChange={setSelectedVehicleId}>
+              <SelectTrigger className="w-full" data-testid="route-vehicle-select">
                 <SelectValue placeholder="Select Vehicle" />
               </SelectTrigger>
               <SelectContent>
-                {/* Options will be fetched dynamically from /api/vehicles in future enhancement */}
+                {vehicles.map(v => (
+                  <SelectItem key={v.id} value={v.id}>{v.id} - {v.driverName}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             
             <div className="space-y-3">
-              <div className="p-3 bg-dashboard-accent bg-opacity-50 rounded-lg">
-                <p className="text-sm text-gray-400">Today's Route</p>
-                <p className="font-semibold" data-testid="route-description">Downtown → Airport → Industrial</p>
+              <div className="p-3 bg-accent rounded-lg">
+                <p className="text-sm text-muted-foreground">Today's Route</p>
+                <p className="font-semibold" data-testid="route-description">
+                  {latestRoute ? `${latestRoute.startLocation} → ${latestRoute.endLocation}` : "No route available"}
+                </p>
               </div>
               
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div data-testid="route-distance">
-                  <p className="text-gray-400">Distance</p>
-                  <p className="font-semibold">147 km</p>
+                  <p className="text-muted-foreground">Distance</p>
+                  <p className="font-semibold">{latestRoute ? `${Math.round(latestRoute.distance)} km` : "--"}</p>
                 </div>
                 <div data-testid="route-duration">
-                  <p className="text-gray-400">Duration</p>
-                  <p className="font-semibold">3h 25m</p>
+                  <p className="text-muted-foreground">Duration</p>
+                  <p className="font-semibold">{latestRoute ? `${Math.round(latestRoute.duration / 60)}h ${latestRoute.duration % 60}m` : "--"}</p>
                 </div>
                 <div data-testid="route-avg-speed">
-                  <p className="text-gray-400">Avg Speed</p>
-                  <p className="font-semibold">43 km/h</p>
+                  <p className="text-muted-foreground">Avg Speed</p>
+                  <p className="font-semibold">{latestRoute ? `${Math.round(latestRoute.avgSpeed)} km/h` : "--"}</p>
                 </div>
                 <div data-testid="route-stops">
-                  <p className="text-gray-400">Stops</p>
-                  <p className="font-semibold">7</p>
+                  <p className="text-muted-foreground">Stops</p>
+                  <p className="font-semibold">{latestRoute ? `${latestRoute.stops}` : "--"}</p>
                 </div>
               </div>
               
               <Button 
                 className="w-full bg-dashboard-blue hover:bg-blue-600 text-white py-2 rounded-lg text-sm transition-colors"
                 data-testid="view-full-route-button"
+                disabled={!latestRoute}
+                onClick={() => latestRoute && setLocation(`/route/${latestRoute.vehicleId}`)}
               >
                 View Full Route
               </Button>
