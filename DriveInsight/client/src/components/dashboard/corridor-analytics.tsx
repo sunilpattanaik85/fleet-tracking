@@ -13,13 +13,13 @@ export default function CorridorAnalytics() {
   if (corridorLoading) {
     return (
       <div className="space-y-6">
-        <Card className="bg-dashboard-secondary border-dashboard-accent">
+        <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle>Corridor Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-48 flex items-center justify-center">
-              <p className="text-gray-400">Loading...</p>
+              <p className="text-muted-foreground">Loading...</p>
             </div>
           </CardContent>
         </Card>
@@ -41,7 +41,7 @@ export default function CorridorAnalytics() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="corridor-distribution-title">Corridor Distribution</CardTitle>
         </CardHeader>
@@ -86,7 +86,7 @@ export default function CorridorAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle data-testid="corridor-speed-title">Average Speed by Corridor</CardTitle>
         </CardHeader>

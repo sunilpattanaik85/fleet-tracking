@@ -179,17 +179,21 @@
 }
 
 /* Ensure proper contrast for form elements in dark theme */
-input, select, textarea {
+.dark input,
+.dark select,
+.dark textarea {
   color: hsl(210 40% 98%);
   background-color: var(--dashboard-accent);
   border-color: var(--dashboard-accent);
 }
 
-input::placeholder {
+.dark input::placeholder {
   color: hsl(215.4 16.3% 65.1%);
 }
 
-input:focus, select:focus, textarea:focus {
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
   outline: 2px solid var(--dashboard-blue);
   outline-offset: 2px;
   border-color: var(--dashboard-blue);

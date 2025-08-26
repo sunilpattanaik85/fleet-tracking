@@ -75,13 +75,13 @@ export default function VehicleTable() {
 
   if (isLoading) {
     return (
-      <Card className="bg-dashboard-secondary border-dashboard-accent">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle>Vehicle Details</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 flex items-center justify-center">
-            <p className="text-gray-400">Loading vehicles...</p>
+            <p className="text-muted-foreground">Loading vehicles...</p>
           </div>
         </CardContent>
       </Card>
@@ -89,7 +89,7 @@ export default function VehicleTable() {
   }
 
   return (
-    <Card className="bg-dashboard-secondary border-dashboard-accent">
+    <Card className="bg-card border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle data-testid="vehicle-table-title">Vehicle Details</CardTitle>
@@ -112,11 +112,11 @@ export default function VehicleTable() {
             placeholder="Search vehicles..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-48 bg-dashboard-accent border-0"
+            className="w-48"
             data-testid="vehicle-search-input"
           />
           <Select value={corridorFilter} onValueChange={setCorridorFilter}>
-            <SelectTrigger className="w-32 bg-dashboard-accent border-0" data-testid="corridor-filter">
+            <SelectTrigger className="w-32" data-testid="corridor-filter">
               <SelectValue placeholder="Corridor" />
             </SelectTrigger>
             <SelectContent>
@@ -128,7 +128,7 @@ export default function VehicleTable() {
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32 bg-dashboard-accent border-0" data-testid="status-filter">
+            <SelectTrigger className="w-32" data-testid="status-filter">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -140,7 +140,7 @@ export default function VehicleTable() {
             </SelectContent>
           </Select>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-32 bg-dashboard-accent border-0" data-testid="type-filter">
+            <SelectTrigger className="w-32" data-testid="type-filter">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
@@ -156,20 +156,20 @@ export default function VehicleTable() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-dashboard-accent">
-                <TableHead className="text-gray-400">Vehicle ID</TableHead>
-                <TableHead className="text-gray-400">Driver</TableHead>
-                <TableHead className="text-gray-400">Corridor</TableHead>
-                <TableHead className="text-gray-400">Speed</TableHead>
-                <TableHead className="text-gray-400">Fuel</TableHead>
-                <TableHead className="text-gray-400">Status</TableHead>
+              <TableRow className="border-b border-border">
+                <TableHead className="text-muted-foreground">Vehicle ID</TableHead>
+                <TableHead className="text-muted-foreground">Driver</TableHead>
+                <TableHead className="text-muted-foreground">Corridor</TableHead>
+                <TableHead className="text-muted-foreground">Speed</TableHead>
+                <TableHead className="text-muted-foreground">Fuel</TableHead>
+                <TableHead className="text-muted-foreground">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredVehicles.map((vehicle) => (
                 <TableRow
                   key={vehicle.id}
-                  className="border-b border-dashboard-accent hover:bg-dashboard-accent hover:bg-opacity-50 transition-colors"
+                  className="border-b border-border hover:bg-accent transition-colors"
                   data-testid={`vehicle-row-${vehicle.id}`}
                 >
                   <TableCell className="font-medium text-dashboard-blue">
@@ -190,7 +190,7 @@ export default function VehicleTable() {
 
         {filteredVehicles.length === 0 && (
           <div className="text-center py-8" data-testid="no-vehicles-message">
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               {searchTerm || corridorFilter !== "all" || statusFilter !== "all" || typeFilter !== "all"
                 ? "No vehicles match the current filters"
                 : "No vehicles available"}
