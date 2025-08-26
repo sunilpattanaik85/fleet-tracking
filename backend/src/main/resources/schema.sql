@@ -45,3 +45,12 @@ CREATE TABLE IF NOT EXISTS daily_metrics (
   CONSTRAINT fk_metrics_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
 );
 
+CREATE TABLE IF NOT EXISTS route_points (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  route_id BIGINT NOT NULL,
+  latitude DOUBLE NOT NULL,
+  longitude DOUBLE NOT NULL,
+  sequence INT NOT NULL,
+  CONSTRAINT fk_route_points_route FOREIGN KEY (route_id) REFERENCES routes(id)
+);
+
